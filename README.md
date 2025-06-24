@@ -55,7 +55,7 @@ using eza for enhanced file listing.
 brew install eza
 
 # Clone the repository
-git clone <repository-url>
+git clone git@github.com:mugoosse/duplicates-finder.git
 cd duplicates-finder
 
 # Install dependencies
