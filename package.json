@@ -1,0 +1,45 @@
+{
+  "name": "duplicates-finder",
+  "version": "1.0.0",
+  "description": "Interactive CLI tool for finding and managing duplicate files and folders",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "duplicates-finder": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/cli/index.ts",
+    "start": "node dist/cli/index.js",
+    "watch": "nodemon --exec ts-node src/cli/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write *.md",
+    "lint": "echo \"No linting configured\" && exit 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "cli",
+    "duplicates",
+    "files",
+    "cleanup",
+    "interactive"
+  ],
+  "author": "Developer",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.0.4",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "boxen": "^8.0.1",
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "inquirer": "^12.6.3",
+    "ora": "^8.2.0",
+    "uuid": "^11.1.0"
+  }
+}
