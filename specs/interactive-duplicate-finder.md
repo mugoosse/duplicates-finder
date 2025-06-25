@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-Build an interactive CLI tool that leverages `eza` for file listings and provides a comprehensive duplicate file/folder management system with visual appeal similar to the Claude Code CLI interface.
+Build an interactive CLI tool that leverages `eza` for file listings and
+provides a comprehensive duplicate file/folder management system with visual
+appeal similar to the Claude Code CLI interface.
 
 ## Core Requirements
 
@@ -11,12 +13,15 @@ Build an interactive CLI tool that leverages `eza` for file listings and provide
 1. **File Discovery**
    - Scan current directory or user-provided directory recursively
    - Use `eza --git-ignore` to respect .gitignore files
-   - Hardcode ignore patterns for `node_modules`, `.venv`, `venv`, `.env`, `dist`, `build`
+   - Hardcode ignore patterns for `node_modules`, `.venv`, `venv`, `.env`,
+     `dist`, `build`
    - Collect file metadata (size, modified date, permissions, path)
 
 2. **Duplicate Detection**
-   - **Name-based duplicates**: Files with identical names in different locations
-   - **Content-based duplicates**: Files with same content hash regardless of name
+   - **Name-based duplicates**: Files with identical names in different
+     locations
+   - **Content-based duplicates**: Files with same content hash regardless of
+     name
    - **Folder duplicates**: Directories with identical structure and content
    - Performance optimization using size-first filtering
 
@@ -56,6 +61,7 @@ Build an interactive CLI tool that leverages `eza` for file listings and provide
 ## Technical Architecture
 
 ### Technology Stack
+
 - **Runtime**: Node.js with TypeScript
 - **CLI Framework**: Commander.js
 - **UI Components**: chalk, inquirer, ora, boxen
@@ -63,6 +69,7 @@ Build an interactive CLI tool that leverages `eza` for file listings and provide
 - **Hashing**: Node.js crypto module
 
 ### Project Structure
+
 ```
 src/
 ├── cli/
@@ -97,42 +104,49 @@ src/
 ## Implementation Phases
 
 ### Phase 1: Project Foundation
+
 - Initialize TypeScript project with proper configuration
 - Set up build system and development tools
 - Configure package.json with dependencies and scripts
 - Implement basic CLI structure with Commander.js
 
 ### Phase 2: File Discovery Engine
+
 - Integrate eza for file listing with --git-ignore
 - Implement recursive directory scanning
 - Add ignore pattern system for common directories
 - Build file metadata collection system
 
 ### Phase 3: Duplicate Detection
+
 - Implement content-based hashing for files
 - Build name-based duplicate detection
 - Add folder structure comparison
 - Optimize for performance with size filtering
 
 ### Phase 4: Interactive Interface
+
 - Create main menu system
 - Implement duplicate browser with keyboard navigation
 - Add action selection interface
 - Build preview and comparison modes
 
 ### Phase 5: Visual Design & UX
+
 - Implement colored output and icons
 - Add progress indicators and loading states
 - Create consistent visual hierarchy
 - Implement status indicators and confirmations
 
 ### Phase 6: Report Generation
+
 - Build markdown report templates
 - Implement data aggregation for reports
 - Add visualization for directory structures
 - Create action plan suggestions
 
 ### Phase 7: Advanced Features
+
 - Implement undo system
 - Add configuration management
 - Build comprehensive logging
@@ -141,6 +155,7 @@ src/
 ## User Interface Design
 
 ### Main Menu
+
 ```
 ┌─ Duplicate Finder ─────────────────────────────────┐
 │                                                    │
@@ -154,6 +169,7 @@ src/
 ```
 
 ### Duplicate Browser
+
 ```
 ┌─ Duplicates Found: 15 groups, 42 files ───────────┐
 │                                                    │
@@ -173,6 +189,7 @@ src/
 ## Configuration Options
 
 ### Default Ignore Patterns
+
 - `node_modules/`
 - `.venv/`, `venv/`, `env/`
 - `.git/`
@@ -181,6 +198,7 @@ src/
 - `.DS_Store`, `Thumbs.db`
 
 ### User Configurable Settings
+
 - Additional ignore patterns
 - Default actions for duplicate types
 - Report output location

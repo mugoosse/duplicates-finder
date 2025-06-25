@@ -12,7 +12,7 @@
     "start": "node dist/cli/index.js",
     "watch": "nodemon --exec ts-node src/cli/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write *.md",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\" \"!node_modules/**\" \"!dist/**\"",
     "lint": "echo \"No linting configured\" && exit 0",
     "typecheck": "tsc --noEmit"
   },
