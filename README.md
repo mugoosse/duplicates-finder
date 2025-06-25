@@ -1,7 +1,6 @@
 # Duplicate Finder CLI
 
-An interactive CLI tool for finding and managing duplicate files and folders
-using eza for enhanced file listing.
+An interactive CLI tool for finding and managing duplicate files and folders.
 
 ## Features
 
@@ -29,7 +28,7 @@ using eza for enhanced file listing.
 
 ### ⚡ **Enhanced Performance**
 
-- Leverages eza with `--git-ignore` for fast file discovery
+- Native Node.js file system operations with `--git-ignore` support
 - Async file processing with SHA-256 hashing
 - Efficient recursive directory scanning
 - Memory-optimized for large directory structures
@@ -47,13 +46,9 @@ using eza for enhanced file listing.
 ### Prerequisites
 
 - [Node.js 16+](https://nodejs.org/)
-- [eza](https://eza.rocks/) - Modern replacement for `ls`
 - Git (for .gitignore support)
 
 ```bash
-# Install eza (macOS with Homebrew)
-brew install eza
-
 # Clone the repository
 git clone git@github.com:mugoosse/duplicates-finder.git
 cd duplicates-finder
@@ -162,7 +157,7 @@ npm run dev report -i <input-file> -o <output-file>
 ```
 src/
 ├── cli/           # CLI commands and main entry point
-├── scanner/       # File discovery with eza integration
+├── scanner/       # File discovery with native Node.js integration
 ├── detector/      # Duplicate detection algorithms
 ├── ui/           # Interactive interface components
 ├── reporter/     # Markdown report generation with prettier
@@ -338,14 +333,13 @@ npm run dev interactive ./test-data
 ### System Requirements
 
 - **Node.js 16+** - [Download](https://nodejs.org/)
-- **eza** - Modern ls replacement - [Install Guide](https://eza.rocks/)
 - **Git** - For .gitignore support (optional)
 
 ### Platform Support
 
 - ✅ **macOS** - Fully supported
 - ✅ **Linux** - Fully supported
-- ⚠️ **Windows** - Basic support (eza required)
+- ✅ **Windows** - Fully supported
 
 ## 🤝 Contributing
 
@@ -371,7 +365,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- [eza](https://eza.rocks/) - Modern replacement for ls
 - [Commander.js](https://github.com/tj/commander.js/) - CLI framework
 - [Inquirer.js](https://github.com/SBoudrias/Inquirer.js/) - Interactive prompts
 - [Prettier](https://prettier.io/) - Code and markdown formatting
+- [Node.js](https://nodejs.org/) - JavaScript runtime

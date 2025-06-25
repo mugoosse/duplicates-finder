@@ -27,7 +27,7 @@ export async function scanCommand(directory: string, options: ScanOptions): Prom
     maxDepth: options.maxDepth
   });
 
-  let spinner = ora('Scanning files with eza...').start();
+  let spinner = ora('Scanning files...').start();
   let scanResult;
 
   try {

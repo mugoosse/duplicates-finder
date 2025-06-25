@@ -21,7 +21,7 @@ export async function interactiveCommand(directory: string): Promise<void> {
     ignorePatterns: DEFAULT_CONFIG.ignorePatterns
   });
 
-  let spinner = ora('Scanning files with eza...').start();
+  let spinner = ora('Scanning files...').start();
   let scanResult;
 
   try {

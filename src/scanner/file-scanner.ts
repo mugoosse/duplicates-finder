@@ -1,7 +1,8 @@
-import { spawn } from 'child_process';
-import { join } from 'path';
+import { promises as fs } from 'fs';
+import { join, relative } from 'path';
 import { FileMetadata, ScanOptions, ScanResult } from '../types/file';
 import { getFileMetadata, shouldIgnoreFile, calculateFileHash } from '../utils/file-utils';
+import { GitignoreParser } from '../utils/gitignore-parser';
 import { logger } from '../utils/logger';
 
 export class FileScanner {
@@ -16,7 +17,7 @@ export class FileScanner {
     logger.info('Starting file scan', { directory: this.scanOptions.directory });
 
     try {
-      const filePaths = await this.getFilePathsWithEza();
+      const filePaths = await this.getFilePathsNative();
       const files: FileMetadata[] = [];
       const directories: FileMetadata[] = [];
       let totalSize = 0;
@@ -66,99 +67,57 @@ export class FileScanner {
     }
   }
 
-  private async getFilePathsWithEza(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      const args = [
-        '--oneline',
-        '--all',
-        '--recurse',
-        '--git-ignore',
-        '--classify=never'  // Don't add type indicators
-      ];
+  private async getFilePathsNative(): Promise<string[]> {
+    const filePaths: string[] = [];
+    const gitignoreParser = await GitignoreParser.createCombinedParser(this.scanOptions.directory);
 
-      if (this.scanOptions.maxDepth) {
-        args.push('--level', this.scanOptions.maxDepth.toString());
+    const scanDirectory = async (directory: string, currentDepth: number = 0): Promise<void> => {
+      // Check depth limit
+      if (this.scanOptions.maxDepth && currentDepth >= this.scanOptions.maxDepth) {
+        return;
       }
 
-      args.push(this.scanOptions.directory);
+      try {
+        const entries = await fs.readdir(directory, { withFileTypes: true });
 
-      const ezaProcess = spawn('eza', args, {
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
+        for (const entry of entries) {
+          const fullPath = join(directory, entry.name);
+          const relativePath = relative(this.scanOptions.directory, fullPath);
 
-      let output = '';
-      let errorOutput = '';
+          // Skip hidden files unless includeHidden is true
+          if (!this.scanOptions.includeHidden && entry.name.startsWith('.')) {
+            continue;
+          }
 
-      ezaProcess.stdout.on('data', (data) => {
-        output += data.toString();
-      });
+          // Check if path should be ignored by gitignore
+          if (gitignoreParser.shouldIgnore(relativePath, entry.isDirectory())) {
+            continue;
+          }
 
-      ezaProcess.stderr.on('data', (data) => {
-        errorOutput += data.toString();
-      });
+          // Add to results
+          filePaths.push(fullPath);
 
-      ezaProcess.on('close', (code) => {
-        if (code !== 0) {
-          logger.error('eza command failed', { code, errorOutput });
-          reject(new Error(`eza command failed with code ${code}: ${errorOutput}`));
-          return;
-        }
-
-        const filePaths: string[] = [];
-        const lines = output.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-        let currentDirectory = this.scanOptions.directory;
-
-        for (const line of lines) {
-          // Skip empty lines
-          if (line.length === 0) continue;
-          
-          // Check if this line represents a directory header (ends with :)
-          if (line.endsWith(':')) {
-            // This is a directory path, update currentDirectory
-            let dirPath = line.slice(0, -1); // Remove the trailing ':'
-            
-            // Remove quotes if they wrap the entire path
-            if (dirPath.startsWith("'") && dirPath.endsWith("'")) {
-              dirPath = dirPath.slice(1, -1);
+          // Recursively scan subdirectories
+          if (entry.isDirectory()) {
+            await scanDirectory(fullPath, currentDepth + 1);
+          } else if (entry.isSymbolicLink() && this.scanOptions.followSymlinks) {
+            try {
+              const stats = await fs.stat(fullPath);
+              if (stats.isDirectory()) {
+                await scanDirectory(fullPath, currentDepth + 1);
+              }
+            } catch (error) {
+              // Ignore broken symlinks
+              logger.warn('Broken symlink encountered', { path: fullPath, error });
             }
-            
-            if (dirPath.startsWith('./')) {
-              // Relative path from base directory
-              currentDirectory = join(this.scanOptions.directory, dirPath.slice(2));
-            } else if (dirPath.startsWith(this.scanOptions.directory)) {
-              // Already an absolute path - use as is
-              currentDirectory = dirPath;
-            } else {
-              // Relative to the scan directory
-              currentDirectory = join(this.scanOptions.directory, dirPath);
-            }
-          } else {
-            // This is a file/directory name within the current directory
-            let fileName = line;
-            
-            // Handle symlinks (remove the -> target part)
-            const symlinkIndex = fileName.indexOf(' -> ');
-            if (symlinkIndex !== -1) {
-              fileName = fileName.substring(0, symlinkIndex);
-            }
-            
-            // Remove quotes if they wrap the entire filename
-            if (fileName.startsWith("'") && fileName.endsWith("'")) {
-              fileName = fileName.slice(1, -1);
-            }
-            
-            const fullPath = join(currentDirectory, fileName);
-            filePaths.push(fullPath);
           }
         }
+      } catch (error) {
+        logger.warn('Failed to read directory', { directory, error });
+      }
+    };
 
-        resolve(filePaths);
-      });
-
-      ezaProcess.on('error', (error) => {
-        logger.error('Failed to execute eza command', { error });
-        reject(new Error(`Failed to execute eza: ${error.message}`));
-      });
-    });
+    await scanDirectory(this.scanOptions.directory);
+    return filePaths;
   }
 }
