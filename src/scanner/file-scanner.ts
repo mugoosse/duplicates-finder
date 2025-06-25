@@ -109,15 +109,24 @@ export class FileScanner {
         let currentDirectory = this.scanOptions.directory;
 
         for (const line of lines) {
+          // Skip empty lines
+          if (line.length === 0) continue;
+          
           // Check if this line represents a directory header (ends with :)
           if (line.endsWith(':')) {
             // This is a directory path, update currentDirectory
-            const dirPath = line.slice(0, -1); // Remove the trailing ':'
+            let dirPath = line.slice(0, -1); // Remove the trailing ':'
+            
+            // Remove quotes if they wrap the entire path
+            if (dirPath.startsWith("'") && dirPath.endsWith("'")) {
+              dirPath = dirPath.slice(1, -1);
+            }
+            
             if (dirPath.startsWith('./')) {
               // Relative path from base directory
               currentDirectory = join(this.scanOptions.directory, dirPath.slice(2));
             } else if (dirPath.startsWith(this.scanOptions.directory)) {
-              // Already an absolute path
+              // Already an absolute path - use as is
               currentDirectory = dirPath;
             } else {
               // Relative to the scan directory
@@ -125,7 +134,20 @@ export class FileScanner {
             }
           } else {
             // This is a file/directory name within the current directory
-            const fullPath = join(currentDirectory, line);
+            let fileName = line;
+            
+            // Handle symlinks (remove the -> target part)
+            const symlinkIndex = fileName.indexOf(' -> ');
+            if (symlinkIndex !== -1) {
+              fileName = fileName.substring(0, symlinkIndex);
+            }
+            
+            // Remove quotes if they wrap the entire filename
+            if (fileName.startsWith("'") && fileName.endsWith("'")) {
+              fileName = fileName.slice(1, -1);
+            }
+            
+            const fullPath = join(currentDirectory, fileName);
             filePaths.push(fullPath);
           }
         }
